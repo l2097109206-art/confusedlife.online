@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+# Quality-focused: keep crawlers out of thin/utility paths
+Disallow: /search
+Disallow: /*?s=
+Disallow: /*?utm_
+
+Sitemap: https://confusedlife.online/sitemap.xml
