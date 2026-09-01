@@ -69,6 +69,9 @@ def header(active, extra_head=""):
 def footer():
     return """<footer class="site-footer">
   <div class="wrap">
+    <div class="disclaimer-notice" role="note" aria-label="Disclaimer">
+      <p><strong>Not professional advice.</strong> ConfusedLife.online is for self-reflection and personal growth only. It does not provide medical, psychological, or clinical advice. If you are in crisis, contact local emergency services or a crisis line such as <a href="https://findahelpline.com" rel="noopener nofollow" target="_blank">findahelpline.com</a> (international) or 988 (US). <a href="/disclaimer/">Read the full disclaimer</a>.</p>
+    </div>
     <div class="footer-grid">
       <div class="footer-about">
         <a class="brand" href="/" style="margin-bottom:.75rem">
@@ -758,6 +761,9 @@ def build_quiz():
 
   <section class="section" style="padding-top:clamp(1.5rem,4vw,2.5rem)">
     <div class="wrap measure">
+      <div class="disclaimer-notice disclaimer-notice--banner" role="note" aria-label="Disclaimer">
+        <p><strong>Not professional advice.</strong> The Clarity Quiz is a reflective self-check, not a diagnostic or screening tool, and gives no medical, psychological, or clinical advice. If you are in crisis, contact local emergency services or a crisis line such as <a href="https://findahelpline.com" rel="noopener nofollow" target="_blank">findahelpline.com</a> (international) or 988 (US).</p>
+      </div>
       <div class="quiz-shell" data-quiz>
         <div class="quiz-head">
           <div class="quiz-meta">

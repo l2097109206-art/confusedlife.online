@@ -447,6 +447,23 @@ tbody tr:hover { background: var(--mist); }
 .crisis-strip { background: var(--clay-wash); border: 1px solid color-mix(in srgb, var(--clay) 30%, transparent); border-radius: var(--radius-sm); padding: .9rem 1.1rem; font-size: .88rem; color: var(--ink); margin-top: 1.25rem; line-height: 1.55; }
 .crisis-strip strong { color: var(--clay); }
 
+/* YMYL disclaimer — site-wide footer band + interactive-page banner */
+.disclaimer-notice {
+  background: var(--clay-wash);
+  border: 1px solid color-mix(in srgb, var(--clay) 26%, transparent);
+  border-left: 3px solid var(--clay);
+  border-radius: var(--radius-sm);
+  padding: .95rem 1.2rem;
+  font-size: .9rem;
+  line-height: 1.62;
+  color: var(--ink);
+  margin-bottom: 2rem;
+}
+.disclaimer-notice p { margin: 0; }
+.disclaimer-notice strong { color: var(--clay); }
+.disclaimer-notice a { color: var(--clay); text-decoration: underline; text-underline-offset: 2px; }
+.disclaimer-notice--banner { font-size: .94rem; padding: 1.1rem 1.35rem; margin: 0 0 1.75rem; }
+
 /* ---------- 17. Utilities ---------- */
 .visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 .center { text-align: center; }
