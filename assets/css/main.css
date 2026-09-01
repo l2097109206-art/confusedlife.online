@@ -248,6 +248,32 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 2.75rem 0; }
 .byline { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem 1rem; font-size: .87rem; color: var(--ink-faint); padding-bottom: 1.75rem; border-bottom: 1px solid var(--line); margin-bottom: 2rem; }
 .byline-author { display: inline-flex; align-items: center; gap: .55rem; color: var(--ink); font-weight: 600; }
 .avatar { width: 30px; height: 30px; border-radius: 50%; background: var(--teal-wash); color: var(--teal); display: grid; place-items: center; font-weight: 700; font-size: .8rem; font-family: var(--serif); flex-shrink: 0; }
+.avatar-lg { width: 46px; height: 46px; font-size: 1.05rem; }
+
+/* Review badge under the byline — E-E-A-T signal (item 2) */
+.review-badge { display: inline-flex; align-items: center; gap: .5rem; margin: -1.5rem 0 2rem; font-size: .82rem; color: var(--ink-faint); }
+.review-dot { width: 8px; height: 8px; border-radius: 50%; background: #2e9e6b; flex-shrink: 0; }
+
+/* Sources & further reading (item 3) */
+.references { margin-top: 3rem; padding: 1.75rem; border: 1px solid var(--line); border-radius: 14px; background: var(--paper-2, #fbfaf7); }
+.references-title { font-size: 1.3rem; margin-bottom: .35rem; }
+.references-intro { font-size: .92rem; color: var(--ink-faint); margin-bottom: 1.1rem; }
+.references-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 1.1rem; }
+.references-list li { display: grid; gap: .2rem; padding-bottom: 1.1rem; border-bottom: 1px dashed var(--line); }
+.references-list li:last-child { border-bottom: 0; padding-bottom: 0; }
+.ref-title { font-weight: 600; color: var(--ink); }
+.ref-author { font-size: .85rem; color: var(--ink-faint); }
+.ref-note { font-size: .9rem; color: var(--ink-soft); }
+.ref-link { font-size: .85rem; font-weight: 600; }
+
+/* Author / editorial-review identity box (item 2) */
+.author-box { margin-top: 2rem; padding: 1.6rem 1.75rem; border-radius: 14px; background: var(--teal-wash, #eef6f3); border: 1px solid var(--line); }
+.author-box-head { display: flex; align-items: center; gap: .9rem; margin-bottom: .9rem; }
+.author-name { font-weight: 700; color: var(--ink); margin: 0; }
+.author-role { font-size: .85rem; color: var(--ink-faint); margin: 0; }
+.author-note { font-size: .9rem; color: var(--ink-soft); line-height: 1.55; margin: 0 0 .8rem; }
+.author-links { font-size: .88rem; margin: 0; }
+.author-links a { font-weight: 600; }
 
 .article-layout { display: grid; gap: clamp(2rem, 5vw, 3.5rem); padding-bottom: clamp(3rem, 7vw, 5rem); }
 @media (min-width: 1080px) { .article-layout { grid-template-columns: 15.5rem minmax(0, var(--measure)); justify-content: center; } }

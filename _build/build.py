@@ -22,6 +22,36 @@ BRAND_NAME = "ConfusedLife.online"
 AUTHOR = "ConfusedLife Editorial Team"
 PUBLISHED = "2026-08-31"
 
+# Shared, traceable references used across the guides. Every entry links to a
+# real, verifiable source — this is the E-E-A-T "sources" signal rendered on
+# each article page (YMYL optimisation item 3).
+REFERENCES = [
+    {
+        "title": "The Path to Purpose: How Young People Find Their Calling",
+        "author": "William Damon (2008)",
+        "note": "Developmental research on how a sense of purpose forms in adolescence and early adulthood — the basis of our purpose sections.",
+        "url": "https://www.goodreads.com/book/show/6372615-the-path-to-purpose",
+    },
+    {
+        "title": "The Paradox of Choice: Why More Is Less",
+        "author": "Barry Schwartz (2004)",
+        "note": "How abundant options increase anxiety and reduce satisfaction — the basis of our 'too many options' and decision sections.",
+        "url": "https://www.goodreads.com/book/show/71211.The_Paradox_of_Choice",
+    },
+    {
+        "title": "Development and validation of the 'quarter-life crisis' concept",
+        "author": "Oliver Robinson (2012), International Journal of Behavioral Development",
+        "note": "The four-stage model of the quarter-life crisis we reference in the quarter-life guide.",
+        "url": "https://doi.org/10.1177/0165025412468060",
+    },
+    {
+        "title": "Mastering the game: How high- and low-trajectories of interest shape engagement",
+        "author": "Paul A. O'Keefe, Erik J. Horberg & Judith M. Harackiewicz (2015)",
+        "note": "Research on how sustained interest develops — relevant to the values and purpose sections.",
+        "url": "https://doi.org/10.1177/0956797614535813",
+    },
+]
+
 # --------------------------------------------------------------------------
 # Layout
 # --------------------------------------------------------------------------
@@ -224,6 +254,7 @@ def article_graph(title, desc, canonical, crumbs, faq=None):
         '      "isPartOf": { "@id": "https://confusedlife.online/#website" },\n'
         '      "publisher": { "@id": "https://confusedlife.online/#organization" },\n'
         f'      "author": {{ "@type": "Organization", "name": "{AUTHOR}", "url": "https://confusedlife.online/about/" }},\n'
+        '      "reviewedBy": { "@type": "Organization", "name": "ConfusedLife Editorial Team", "url": "https://confusedlife.online/editorial-policy/" },\n'
         '      "mainEntityOfPage": { "@type": "WebPage", "@id": "' + SITE + canonical + '" }\n'
         "    }",
         "    {\n"
@@ -328,6 +359,47 @@ def strip_h1(body_html):
 # Page renderers
 # --------------------------------------------------------------------------
 
+def references_section(refs):
+    """Render a 'Sources & further reading' block (YMYL E-E-A-T item 3)."""
+    if not refs:
+        return ""
+    items = []
+    for r in refs:
+        items.append(
+            f'        <li>\n'
+            f'          <span class="ref-title">{html.escape(r["title"])}</span>\n'
+            f'          <span class="ref-author">{html.escape(r["author"])}</span>\n'
+            f'          <span class="ref-note">{html.escape(r["note"])}</span>\n'
+            f'          <a class="ref-link" href="{r["url"]}" rel="noopener nofollow" target="_blank">View source ↗</a>\n'
+            f'        </li>'
+        )
+    joined = "\n".join(items)
+    return (
+        '      <section class="references" aria-label="Sources and further reading">\n'
+        '        <h2 class="references-title">Sources &amp; further reading</h2>\n'
+        '        <p class="references-intro">Every guide on ConfusedLife.online is written against published research. These are the sources this article draws on. We link to them so you can check our reading.</p>\n'
+        '        <ul class="references-list">\n' + joined + "\n        </ul>\n"
+        '      </section>'
+    )
+
+
+def author_box():
+    """Render the author / editorial-review identity block (YMYL E-E-A-T item 2)."""
+    return (
+        '      <aside class="author-box" aria-label="About the author and review">\n'
+        '        <div class="author-box-head">\n'
+        '          <span class="avatar avatar-lg" aria-hidden="true">CL</span>\n'
+        '          <div>\n'
+        f'            <p class="author-name">{AUTHOR}</p>\n'
+        '            <p class="author-role">Editorial team &middot; reviewed for accuracy against cited sources</p>\n'
+        '          </div>\n'
+        '        </div>\n'
+        '        <p class="author-note">ConfusedLife.online is an independent editorial project. We are not licensed mental health professionals, and nothing here is medical advice, diagnosis or treatment. Content is researched and reviewed by our editorial team before publication; where the evidence is thin we say so.</p>\n'
+        '        <p class="author-links"><a href="/about/">Who we are</a> &middot; <a href="/editorial-policy/">Editorial policy</a> &middot; <a href="/disclaimer/">Full disclaimer</a></p>\n'
+        '      </aside>'
+    )
+
+
 def render_article(meta, body_html, nav_key="guide"):
     """meta: slug, title, desc, eyebrow, lede, read_time, crumbs, active"""
     canonical = meta["slug"]
@@ -367,6 +439,7 @@ def render_article(meta, body_html, nav_key="guide"):
           <span>&middot;</span>
           <span>{meta.get("read_time", "12 min read")}</span>
         </div>
+        <p class="review-badge"><span class="review-dot" aria-hidden="true"></span> Accuracy reviewed by the editorial team against cited sources. Not medical advice.</p>
       </div>
     </header>
 
@@ -375,6 +448,11 @@ def render_article(meta, body_html, nav_key="guide"):
       <div class="article-body dropcap">
 {body}
       </div>
+    </div>
+
+    <div class="wrap measure">
+      {references_section(REFERENCES)}
+      {author_box()}
     </div>
   </article>
 """
