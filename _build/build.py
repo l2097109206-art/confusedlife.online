@@ -31,6 +31,7 @@ NAV_ITEMS = [
     ("/guides/feeling-lost-in-life/", "Main Guide", "guide"),
     ("/tools/clarity-quiz/", "Clarity Quiz", "quiz"),
     ("/quotes/confused-about-life/", "Quotes", "quotes"),
+    ("/wall/", "The Clarity Wall", "wall"),
     ("/topics/", "All Topics", "topics"),
 ]
 
@@ -99,6 +100,7 @@ def footer():
         <h3>Guides</h3>
         <ul>
           <li><a href="/guides/why-am-i-so-confused-about-life/">Why am I so confused?</a></li>
+          <li><a href="/wall/">The Clarity Wall</a></li>
           <li><a href="/guides/signs-you-are-feeling-lost/">15 signs you're lost</a></li>
           <li><a href="/guides/how-to-find-your-purpose/">Finding your purpose</a></li>
           <li><a href="/guides/quarter-life-crisis/">Quarter-life crisis</a></li>
@@ -1138,6 +1140,7 @@ SITEMAP_URLS = [
     ("/guides/how-to-find-your-purpose/", "0.9", "monthly"),
     ("/guides/quarter-life-crisis/", "0.8", "monthly"),
     ("/tools/clarity-quiz/", "0.9", "monthly"),
+    ("/wall/", "0.7", "weekly"),
     ("/quotes/confused-about-life/", "0.8", "monthly"),
     ("/topics/", "0.7", "monthly"),
     ("/about/", "0.5", "yearly"),
@@ -1147,6 +1150,54 @@ SITEMAP_URLS = [
     ("/terms/", "0.3", "yearly"),
     ("/contact/", "0.3", "yearly"),
 ]
+
+
+def build_wall():
+    body = (CONTENT / "wall.html").read_text(encoding="utf-8")
+    canonical = "/wall/"
+    schema = f"""{{
+  "@context": "https://schema.org",
+  "@graph": [
+    {{
+      "@type": "WebPage",
+      "@id": "{SITE}/wall/#webpage",
+      "url": "{SITE}/wall/",
+      "name": "The Clarity Wall",
+      "description": "Share what's weighing on you and get a short, non-clinical Personal Reflection Report.",
+      "isPartOf": {{ "@id": "{SITE}/#website" }},
+      "inLanguage": "en-US"
+    }},
+    {{
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {{ "@type": "ListItem", "position": 1, "name": "Home", "item": "{SITE}/" }},
+        {{ "@type": "ListItem", "position": 2, "name": "The Clarity Wall" }}
+      ]
+    }}
+  ]
+}}"""
+    extra = '<link rel="stylesheet" href="/assets/css/wall.css">'
+    page = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+{head("The Clarity Wall — share, reflect, you're not alone", "Post what's weighing on you anonymously, read others on the wall, and get a short Personal Reflection Report. A reflective exercise, not therapy or a diagnosis.", canonical, og_type="website", schema=schema, extra=extra)}
+</head>
+<body>
+
+{header("wall")}
+
+<main id="main">
+{body}
+</main>
+
+{footer()}
+
+<script src="/assets/js/main.js" defer></script>
+<script src="/assets/js/wall.js" defer></script>
+</body>
+</html>"""
+    write(canonical + "index.html", page)
+    print("  wrote /wall/")
 
 
 def build_sitemap():
@@ -1176,6 +1227,7 @@ def main():
     build_articles()
     build_quotes()
     build_quiz()
+    build_wall()
     build_topics()
     build_pages()
     build_404()

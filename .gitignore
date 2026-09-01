@@ -19,6 +19,9 @@ desktop.ini
 .idea/
 .vscode/
 
+# Local assistant working directory
+.workbuddy/
+
 # Logs
 *.log
 npm-debug.log*

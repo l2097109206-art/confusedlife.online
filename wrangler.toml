@@ -1,0 +1,7 @@
+name = "confusedlife"
+compatibility_date = "2024-09-01"
+pages_build_output_dir = "./_deploy"
+
+[[kv_namespaces]]
+binding = "WALL"
+id = "6d3bf5a4b51047c28175b50a5ce4b56d"

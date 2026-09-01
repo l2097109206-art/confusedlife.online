@@ -1,0 +1,169 @@
+<section class="section wall-hero">
+  <div class="wrap measure">
+    <p class="eyebrow">Community &amp; Reflection</p>
+    <h1>The Clarity Wall</h1>
+    <p class="lede">Unburden what's weighing on you. Post it (anonymously, if you like), see that
+      you're not the only one, and get a short <strong>Personal Reflection Report</strong> — a reflective
+      exercise, not therapy or a diagnosis.</p>
+    <div class="hero-cta">
+      <a class="btn btn-primary" href="#share">Share what's on your mind</a>
+      <a class="btn btn-ghost" href="#feed">Read the wall</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SUBMIT WIZARD ============ -->
+<section class="section" id="share" style="padding-top:clamp(1.2rem,3vw,2rem)">
+  <div class="wrap wall-shell">
+    <div class="wizard" id="wizard">
+      <div class="wizard-head">
+        <span class="wizard-step" id="stepLabel">Step 1 of 4</span>
+        <div class="wizard-progress"><i id="progBar" style="width:25%"></i></div>
+      </div>
+
+      <!-- Step 1: category -->
+      <div class="wstep" data-step="1">
+        <h2>What area is this about?</h2>
+        <div class="cat-grid" id="catGrid">
+          <button type="button" class="cat-card" data-cat="career"><span>#CareerCrossroads</span>Career</button>
+          <button type="button" class="cat-card" data-cat="relationship"><span>#RelationshipFog</span>Relationship</button>
+          <button type="button" class="cat-card" data-cat="burnout"><span>#BurnoutBrain</span>Mind &amp; Burnout</button>
+          <button type="button" class="cat-card" data-cat="identity"><span>#QuarterLifeCrisis</span>Identity / Direction</button>
+        </div>
+      </div>
+
+      <!-- Step 2: description -->
+      <div class="wstep" data-step="2" hidden>
+        <h2>What's weighing on your mind?</h2>
+        <p class="muted">A few honest sentences help the report land. Aim for 100–500 words.</p>
+        <textarea id="storyInput" rows="7" placeholder="I'm 27, everyone around me seems to have a plan, and I freeze every time I try to pick a direction…" maxlength="1500"></textarea>
+        <div class="wordcount"><span id="wc">0</span> words · <span id="wcHint" class="muted">keep going</span></div>
+      </div>
+
+      <!-- Step 3: stuck + duration -->
+      <div class="wstep" data-step="3" hidden>
+        <h2>How stuck do you feel?</h2>
+        <div class="scale" id="stuckScale">
+          <button type="button" data-val="1">1<span>Calm</span></button>
+          <button type="button" data-val="2">2</button>
+          <button type="button" data-val="3">3<span>Stuck</span></button>
+          <button type="button" data-val="4">4</button>
+          <button type="button" data-val="5">5<span>Lost</span></button>
+        </div>
+        <h2 style="margin-top:1.4rem">How long have you felt this way?</h2>
+        <div class="chip-row" id="durRow">
+          <button type="button" data-dur="<1 month">Under 1 month</button>
+          <button type="button" data-dur="1–6 months">1–6 months</button>
+          <button type="button" data-dur="1+ year">Over a year</button>
+        </div>
+      </div>
+
+      <!-- Step 4: options -->
+      <div class="wstep" data-step="4" hidden>
+        <h2>Almost there.</h2>
+        <label class="check"><input type="checkbox" id="optAnon" checked> Post anonymously to the community wall</label>
+        <label class="check"><input type="checkbox" id="optEmail"> Send my full Reflection Report to my email</label>
+        <div class="email-field" id="emailField" hidden>
+          <input type="email" id="emailInput" placeholder="you@example.com" autocomplete="email">
+          <p class="muted tiny">We'll only use it to send your report. No spam, ever.</p>
+        </div>
+        <div class="disclaimer-notice" role="note">
+          <p>This is a reflective self-check, not a diagnostic or clinical tool, and does not replace
+            professional help. If you're in crisis, contact <a href="https://findahelpline.com" rel="noopener nofollow" target="_blank">findahelpline.com</a>
+            or 988 (US).</p>
+        </div>
+      </div>
+
+      <div class="wizard-nav">
+        <button type="button" class="btn btn-ghost" id="backBtn" hidden>Back</button>
+        <button type="button" class="btn btn-primary" id="nextBtn" disabled>Next</button>
+        <button type="button" class="btn btn-primary" id="submitBtn" hidden>Get my Reflection Report</button>
+      </div>
+      <p class="form-msg" id="formMsg" role="status"></p>
+    </div>
+
+    <!-- ===== Reflection Report view ===== -->
+    <div class="report-view" id="reportView" hidden>
+      <div class="report-card" id="reportCard">
+        <p class="eyebrow">Your Personal Reflection Report</p>
+        <h2 id="repTitle">Here's a way to hold this</h2>
+        <div class="report-mod" id="repRoot">
+          <h3>1 · The Root Cause</h3>
+          <p></p>
+        </div>
+        <div class="report-mod" id="repMind">
+          <h3>2 · Mindset Shift</h3>
+          <p></p>
+        </div>
+        <div class="report-mod" id="repAct">
+          <h3>3 · 3-Step Action Plan <span class="muted">(next 48h)</span></h3>
+          <ol></ol>
+        </div>
+        <div class="report-mod" id="repRes">
+          <h3>4 · Recommended Reading</h3>
+          <ul></ul>
+        </div>
+        <p class="report-foot muted">Generated by an AI reflection model — for self-reflection only, not medical or psychological advice.</p>
+      </div>
+      <div class="report-actions">
+        <button type="button" class="btn btn-primary" id="shareCardBtn">Share my quote card</button>
+        <button type="button" class="btn btn-ghost" id="againBtn">Write another</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CRISIS MODAL ============ -->
+<div class="modal" id="crisisModal" hidden>
+  <div class="modal-card crisis">
+    <h2>You're not alone in this.</h2>
+    <p>We're really glad you shared. We can't give you a report for something this heavy — but there
+      are people trained to sit with you right now, for free, and confidential.</p>
+    <ul class="crisis-links">
+      <li><a href="https://findahelpline.com" rel="noopener nofollow" target="_blank">findahelpline.com</a> — international crisis lines</li>
+      <li><strong>988</strong> — Suicide &amp; Crisis Lifeline (US, call or text)</li>
+      <li><a href="https://www.samhsa.gov" rel="noopener nofollow" target="_blank">samhsa.gov</a> — US mental health resources</li>
+    </ul>
+    <button type="button" class="btn btn-primary" id="crisisClose">Close</button>
+  </div>
+</div>
+
+<!-- ============ COMMUNITY FEED ============ -->
+<section class="section" id="feed">
+  <div class="wrap">
+    <div class="feed-head">
+      <h2>The Wall</h2>
+      <p class="muted">Real things people are carrying. Tap a reaction if it lands.</p>
+    </div>
+    <div class="feed-grid" id="feedGrid">
+      <p class="muted" id="feedLoading">Loading the wall…</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ AFFILIATE / GROWTH STRIP ============ -->
+<section class="section affiliate-strip">
+  <div class="wrap measure">
+    <h2>When you want more support</h2>
+    <p class="muted">If a real conversation with a licensed therapist would help, these are services
+      people use. (We may earn a commission at no extra cost to you — it never changes what we write.)</p>
+    <div class="aff-cards">
+      <a class="aff-card" href="https://www.betterhelp.com" rel="noopener nofollow sponsored" target="_blank">
+        <strong>BetterHelp</strong><span>Online therapy with licensed counselors</span></a>
+      <a class="aff-card" href="https://www.notion.so" rel="noopener nofollow sponsored" target="_blank">
+        <strong>Notion</strong><span>Templates to organize your direction &amp; goals</span></a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SHARE CARD CANVAS ============ -->
+<div class="modal" id="shareModal" hidden>
+  <div class="modal-card">
+    <h2>Your quote card</h2>
+    <canvas id="shareCanvas" width="1080" height="1080"></canvas>
+    <div class="report-actions">
+      <a class="btn btn-primary" id="dlCard" download="clarity-quote.png">Download</a>
+      <button type="button" class="btn btn-ghost" id="shareClose">Close</button>
+    </div>
+  </div>
+</div>

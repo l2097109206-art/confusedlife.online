@@ -1,15 +1,18 @@
 #!/usr/bin/env python3
-"""Bind custom domains to a Cloudflare Pages project.
+"""Bind custom domains to a Cloudflare Pages project and provision their DNS.
 
-Wrangler has no CLI command for Pages custom domains, so this calls the
-Cloudflare API directly using the OAuth token stored by `wrangler login`.
+Wrangler has no CLI command for Pages custom domains, and the OAuth token it
+stores only carries `zone:read` — so it can bind a domain but cannot create the
+CNAME records the domain needs to validate. Supply a token with DNS:Edit
+(e.g. via CLOUDFLARE_API_TOKEN) and this script does both halves.
 
 Usage:
-    python _build/bind_domain.py [domain ...]
-
-Defaults to confusedlife.online and www.confusedlife.online.
+    CLOUDFLARE_API_TOKEN=<token> python _build/bind_domain.py
+    python _build/bind_domain.py --skip-dns          # bind only
+    python _build/bind_domain.py example.com         # specific domains
 """
 
+import argparse
 import json
 import os
 import re
@@ -21,67 +24,146 @@ from pathlib import Path
 
 ACCOUNT_ID = "b662defacdf7b1d37cfb8c8b86f6cd00"
 PROJECT = "confusedlife"
+PAGES_TARGET = "confusedlife.pages.dev"
 API = "https://api.cloudflare.com/client/v4"
 
-# wrangler stores credentials here on Windows
-CONFIG = Path.home() / "AppData" / "Roaming" / "xdg.config" / ".wrangler" / "config" / "default.toml"
+WRANGLER_CONFIG = (
+    Path.home() / "AppData" / "Roaming" / "xdg.config" / ".wrangler" / "config" / "default.toml"
+)
 
 
-def load_token() -> str:
-    if not CONFIG.exists():
-        sys.exit(f"wrangler config not found at {CONFIG}\nRun: npx wrangler@latest login")
-    text = CONFIG.read_text(encoding="utf-8")
-    match = re.search(r'^\s*oauth_token\s*=\s*["\']([^"\']+)["\']', text, re.M)
-    if not match:
-        sys.exit("No oauth_token in wrangler config — run `npx wrangler@latest login` first.")
-    return match.group(1)
+def load_tokens():
+    """Return (api_token, oauth_token). Either may be None."""
+    api = os.environ.get("CLOUDFLARE_API_TOKEN") or os.environ.get("CF_API_TOKEN")
+    oauth = None
+    if WRANGLER_CONFIG.exists():
+        m = re.search(
+            r'^\s*oauth_token\s*=\s*["\']([^"\']+)["\']',
+            WRANGLER_CONFIG.read_text(encoding="utf-8"),
+            re.M,
+        )
+        oauth = m.group(1) if m else None
+    if not api and not oauth:
+        sys.exit(
+            "No credentials found.\n"
+            "  export CLOUDFLARE_API_TOKEN=<token with Zone:DNS:Edit>\n"
+            "  or run: npx wrangler@latest login"
+        )
+    return api, oauth
 
 
-def request(method: str, path: str, token: str, payload=None):
+def call(method, path, token, payload=None):
     data = json.dumps(payload).encode() if payload is not None else None
     req = urllib.request.Request(
         f"{API}{path}",
         data=data,
         method=method,
-        headers={
-            "Authorization": f"Bearer {token}",
-            "Content-Type": "application/json",
-        },
+        headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
     )
-    ctx = ssl.create_default_context()
     try:
-        with urllib.request.urlopen(req, timeout=60, context=ctx) as resp:
-            return json.loads(resp.read().decode())
+        with urllib.request.urlopen(req, timeout=60, context=ssl.create_default_context()) as r:
+            return json.loads(r.read().decode())
     except urllib.error.HTTPError as e:
         body = e.read().decode(errors="replace")
-        return json.loads(body) if body.strip().startswith("{") else {"success": False, "errors": [{"message": body}]}
+        return (
+            json.loads(body)
+            if body.strip().startswith("{")
+            else {"success": False, "errors": [{"code": e.code, "message": body[:200]}]}
+        )
 
 
-def main():
-    domains = sys.argv[1:] or ["confusedlife.online", "www.confusedlife.online"]
-    token = load_token()
+def errs(result):
+    return "; ".join(f"[{e.get('code')}] {e.get('message')}" for e in result.get("errors", []))
 
+
+def bind(domains, token):
     for domain in domains:
-        print(f"\n→ adding {domain} …")
-        result = request(
+        res = call(
             "POST",
             f"/accounts/{ACCOUNT_ID}/pages/projects/{PROJECT}/domains",
             token,
             {"name": domain},
         )
-        if result.get("success"):
-            info = result.get("result", {})
-            print(f"  ✓ {info.get('name', domain)}  status={info.get('status', '?')}"
-                  f"  verification={info.get('validation_data', {}).get('status', 'n/a')}")
+        if res.get("success"):
+            print(f"  bound   {domain}")
+        elif any(e.get("code") == 1047 for e in res.get("errors", [])):
+            print(f"  already  {domain} (already bound)")
         else:
-            errs = result.get("errors") or []
-            for e in errs:
-                print(f"  ✗ [{e.get('code')}] {e.get('message')}")
+            print(f"  FAILED   {domain}: {errs(res)}")
 
-    print("\nCurrent domains:")
-    listed = request("GET", f"/accounts/{ACCOUNT_ID}/pages/projects/{PROJECT}/domains", token)
-    for d in listed.get("result", []):
-        print(f"  • {d.get('name')}  ({d.get('status')})")
+
+def zone_id(domain, token):
+    """Find the zone id for the registrable domain (handles www. prefixes)."""
+    parts = domain.split(".")
+    for candidate in (".".join(parts[i:]) for i in range(len(parts) - 1)):
+        res = call("GET", f"/zones?name={candidate}", token)
+        if res.get("success") and res["result"]:
+            return res["result"][0]["id"], res["result"][0]["name"]
+    return None, None
+
+
+def provision_dns(domains, token, zone):
+    zid, zname = zone
+    print(f"\nDNS records in zone {zname}:")
+    existing = call("GET", f"/zones/{zid}/dns_records?per_page=100", token)
+    if not existing.get("success"):
+        print(f"  cannot list records: {errs(existing)}")
+        return
+    have = {(r["type"], r["name"].lower()) for r in existing.get("result", [])}
+
+    for domain in domains:
+        if ("CNAME", domain.lower()) in have:
+            print(f"  exists   CNAME {domain} -> {PAGES_TARGET}")
+            continue
+        res = call(
+            "POST",
+            f"/zones/{zid}/dns_records",
+            token,
+            {
+                "type": "CNAME",
+                "name": domain,
+                "content": PAGES_TARGET,
+                "proxied": True,
+                "ttl": 1,  # auto
+            },
+        )
+        if res.get("success"):
+            print(f"  created  CNAME {domain} -> {PAGES_TARGET}  (proxied)")
+        else:
+            print(f"  FAILED   {domain}: {errs(res)}")
+
+
+def status(token):
+    res = call("GET", f"/accounts/{ACCOUNT_ID}/pages/projects/{PROJECT}/domains", token)
+    print("\nPages domains:")
+    for d in res.get("result", []):
+        v = d.get("validation_data") or {}
+        print(f"  {d['name']:28} {d.get('status'):12} cert={v.get('status', 'n/a')}")
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("domains", nargs="*",
+                    default=["confusedlife.online", "www.confusedlife.online"])
+    ap.add_argument("--skip-dns", action="store_true", help="bind domains only")
+    args = ap.parse_args()
+
+    api, oauth = load_tokens()
+    # DNS writes need the API token; binding works with either.
+    dns_token = api or oauth
+    bind_token = oauth or api
+
+    print(f"Binding {', '.join(args.domains)} to '{PROJECT}' …")
+    bind(args.domains, bind_token)
+
+    if not args.skip_dns:
+        zone = zone_id(args.domains[0], dns_token)
+        if not zone[0]:
+            print("\nZone not found — is the domain in this Cloudflare account?")
+        else:
+            provision_dns(args.domains, dns_token, zone)
+
+    status(bind_token)
 
 
 if __name__ == "__main__":
