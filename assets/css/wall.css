@@ -1,4 +1,8 @@
 /* ===== The Clarity Wall ===== */
+/* Hidden-attribute guard: author `display` rules (e.g. .modal/.comments use
+   display:flex) override the UA [hidden]{display:none}, so force it back.
+   Fixes modals/comments that could not be closed via the hidden attribute. */
+[hidden] { display: none !important; }
 .wall-hero .lede { font-size: clamp(1.05rem, 2.2vw, 1.25rem); }
 .hero-cta { display: flex; gap: .8rem; flex-wrap: wrap; margin-top: 1.2rem; }
 
