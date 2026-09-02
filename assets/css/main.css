@@ -498,6 +498,43 @@ tbody tr:hover { background: var(--mist); }
 .text-soft { color: var(--ink-soft); }
 .text-small { font-size: .9rem; }
 
+/* ---------- 17b. Homepage: speak-freely + live wall preview ---------- */
+.trust-pills { display: flex; flex-wrap: wrap; gap: .65rem 1rem; margin-top: 1.5rem; }
+.trust-pill {
+  display: inline-flex; align-items: center; gap: .5rem;
+  background: var(--teal-wash); color: var(--teal-deep);
+  border: 1px solid color-mix(in srgb, var(--teal) 22%, transparent);
+  border-radius: 999px; padding: .5rem .95rem;
+  font-size: .9rem; font-weight: 600;
+}
+.trust-pill .ico { font-size: 1.05rem; line-height: 1; }
+
+.voices { display: grid; gap: 1rem; grid-template-columns: 1fr; }
+@media (min-width: 640px) { .voices { grid-template-columns: 1fr 1fr; } }
+.voice-card {
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 1.1rem 1.2rem;
+  box-shadow: var(--shadow-sm); display: flex; flex-direction: column; gap: .75rem;
+}
+.voice-text { margin: 0; color: var(--ink); line-height: 1.6; font-size: 1rem; }
+.voice-meta { display: flex; align-items: center; gap: .6rem; font-size: .82rem; color: var(--ink-faint); flex-wrap: wrap; }
+.voice-cat {
+  background: var(--mist); color: var(--ink-soft);
+  border-radius: 999px; padding: .2rem .65rem; font-weight: 600;
+}
+.comfort-btn {
+  margin-left: auto; display: inline-flex; align-items: center; gap: .4rem;
+  background: var(--clay-wash); color: var(--clay);
+  border: 1px solid color-mix(in srgb, var(--clay) 30%, transparent);
+  border-radius: 999px; padding: .35rem .8rem;
+  font-size: .85rem; font-weight: 700; cursor: pointer;
+  transition: transform .12s ease, background .12s ease;
+}
+.comfort-btn:hover { transform: translateY(-1px); }
+.comfort-btn:disabled { opacity: .6; cursor: default; transform: none; }
+.voices-empty, .voices-loading { color: var(--ink-faint); font-size: .95rem; padding: .5rem 0; }
+.voices-empty a, .voices-loading a { color: var(--teal); }
+
 /* ---------- 18. Print ---------- */
 @media print {
   .site-header, .site-footer, .progress-track, .toc, .ad-slot, .quiz-shell, .cta-panel, .icon-btn { display: none !important; }
