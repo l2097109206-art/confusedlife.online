@@ -247,10 +247,49 @@
     return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   }
 
-  // ---------- Crisis modal ----------
+  // ---------- Crisis modal (language-aware) ----------
   const crisisModal = $("#crisisModal");
-  $("#crisisClose").addEventListener("click", () => (crisisModal.hidden = true));
-  function openCrisis() { crisisModal.hidden = false; }
+  const isZh = () => /^(zh|zh-CN|zh-TW|zh-Hans|zh-Hant)/i.test(navigator.language || navigator.userLanguage || "");
+
+  const CRISIS_EN = `
+    <h2>You're not alone in this.</h2>
+    <p>We're really glad you shared. We can't give you a report for something this heavy — but there
+      are people trained to sit with you right now, for free, and confidential.</p>
+    <ul class="crisis-links">
+      <li><a href="https://findahelpline.com" rel="noopener nofollow" target="_blank">findahelpline.com</a> — international crisis lines</li>
+      <li><strong>988</strong> — Suicide &amp; Crisis Lifeline (US, call or text)</li>
+      <li><a href="https://www.samhsa.gov" rel="noopener nofollow" target="_blank">samhsa.gov</a> — US mental health resources</li>
+    </ul>
+    <button type="button" class="btn btn-primary" id="crisisClose">Close</button>`;
+
+  const CRISIS_ZH = `
+    <h2>你并不孤单</h2>
+    <p>很高兴你愿意说出来。像这样沉重的话题，我们没法给你生成报告——但此刻就有受过专业训练的人，可以免费、保密地陪你坐一会儿。</p>
+    <ul class="crisis-links">
+      <li><strong>全国统一心理援助热线 12356</strong>（24 小时，国家卫健委，手机直接拨打）</li>
+      <li><strong>北京心理危机研究与干预中心 010-82951332</strong>（24 小时，手机拨打）</li>
+      <li><strong>希望24热线 400-161-9995</strong>（24 小时，全国自杀危机干预）</li>
+      <li><strong>青少年热线 12355</strong>（9:00–19:00，共青团中央）</li>
+      <li><a href="https://findahelpline.com" rel="noopener nofollow" target="_blank">findahelpline.com</a> —— 按国家/地区查找国际心理危机热线</li>
+    </ul>
+    <button type="button" class="btn btn-primary" id="crisisClose">关闭</button>`;
+
+  function openCrisis() {
+    const card = crisisModal.querySelector(".modal-card");
+    card.innerHTML = isZh() ? CRISIS_ZH : CRISIS_EN;
+    card.querySelector("#crisisClose").addEventListener("click", () => (crisisModal.hidden = true));
+    crisisModal.hidden = false;
+  }
+  // tap the dim backdrop to dismiss
+  crisisModal.addEventListener("click", (e) => { if (e.target === crisisModal) crisisModal.hidden = true; });
+
+  // Localize the step-4 crisis note for Chinese readers (EN stays as default)
+  const crisisNote = $("#crisisNote");
+  if (crisisNote && isZh()) {
+    crisisNote.innerHTML = '<p>本工具仅用于自我反思，不是诊断或临床工具，也不能替代专业帮助。'
+      + '如果您正处于危机中，请拨打 <strong>12356</strong>（全国心理援助热线，24 小时）'
+      + '或 <strong>010-82951332</strong>（北京心理危机研究与干预中心，24 小时）。</p>';
+  }
 
   // ---------- Share card ----------
   const shareModal = $("#shareModal");
