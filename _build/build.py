@@ -22,6 +22,11 @@ BRAND_NAME = "ConfusedLife.online"
 AUTHOR = "ConfusedLife Editorial Team"
 PUBLISHED = "2026-08-31"
 
+# Asset cache-buster. _headers sets /assets/* to `immutable` (1-year cache), so any
+# change to CSS/JS must bump this version or browsers will serve a stale file forever.
+# Bump on EVERY edit to assets/css/* or assets/js/*.
+ASSET_VER = "2"
+
 # Shared, traceable references used across the guides. Every entry links to a
 # real, verifiable source — this is the E-E-A-T "sources" signal rendered on
 # each article page (YMYL optimisation item 3).
@@ -524,6 +529,15 @@ def render_simple(meta, body_html, nav_key="topics", extra_head=""):
 def write(rel_path, content):
     path = ROOT / rel_path.lstrip("/")
     path.parent.mkdir(parents=True, exist_ok=True)
+    # Append the cache-busting version to every /assets/ reference so edited
+    # CSS/JS is actually re-fetched by browsers (see ASSET_VER above).
+    if rel_path.endswith(".html"):
+        import re
+        content = re.sub(
+            r'(?P<attr>href|src)="(/assets/[^"?]+)"',
+            lambda m: f'{m.group("attr")}="{m.group(2)}?v={ASSET_VER}"',
+            content,
+        )
     path.write_text(content, encoding="utf-8")
     return path
 
